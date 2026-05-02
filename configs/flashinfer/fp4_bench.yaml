@@ -1,0 +1,41 @@
+# A/B comparison of FP4 FMHA on the CUTLASS Blackwell backend.
+# Builds main and the feature branch; runs the same pytest + benchmark
+# command on both so results can be compared side-by-side.
+
+project:
+  type: flashinfer
+  repo: https://github.com/carlyou/flashinfer.git
+  description: FP4 FMHA correctness + perf check on B200.
+
+build:
+  cuda_arch: "10.0a"
+  max_jobs: 0.8
+
+branches:
+  main:
+    runs:
+      - label: main_unit
+        command: pytest tests/attention/test_blackwell_fmha.py -v -k fp4
+      - label: main_bench
+        command: >
+          python benchmarks/flashinfer_benchmark.py
+          --routine BatchPrefillWithRaggedKVCacheWrapper
+          --batch_size 32 --s_kv 2048
+          --num_qo_heads 32 --num_kv_heads 8
+          --head_dim_qk 128 --head_dim_vo 128
+          --refcheck
+        iterations: 3
+
+  feat--fmha-fwd-cutlass-fp4-out:
+    runs:
+      - label: pr1_unit
+        command: pytest tests/attention/test_blackwell_fmha.py -v -k fp4
+      - label: pr1_bench
+        command: >
+          python benchmarks/flashinfer_benchmark.py
+          --routine BatchPrefillWithRaggedKVCacheWrapper
+          --batch_size 32 --s_kv 2048
+          --num_qo_heads 32 --num_kv_heads 8
+          --head_dim_qk 128 --head_dim_vo 128
+          --refcheck
+        iterations: 3

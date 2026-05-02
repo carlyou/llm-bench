@@ -1,0 +1,18 @@
+# Smoke test for vllm-project/flash-attention. Builds and runs a subset
+# of the test suite. Single branch for now; extend with feature branches
+# for A/B perf comparisons.
+
+project:
+  type: flash-attention
+  repo: https://github.com/vllm-project/flash-attention.git
+  description: vLLM's flash-attention fork — build + test smoke.
+
+build:
+  cuda_arch: "9.0a"           # Hopper. Use "10.0a" for Blackwell.
+  max_jobs: 0.8
+
+branches:
+  main:
+    runs:
+      - label: main_smoke
+        command: pytest tests/test_flash_attn.py -v -k test_flash_attn_output

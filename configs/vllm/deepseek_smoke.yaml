@@ -1,0 +1,31 @@
+# Serving smoke benchmark for vLLM. Starts a server, runs `vllm bench serve`.
+# Single branch for now; add a feature branch under `branches:` for A/B.
+
+project:
+  type: vllm
+  repo: https://github.com/vllm-project/vllm.git
+  description: DeepSeek-V2-Lite-FP8 serving throughput smoke.
+
+build:
+  cuda_arch: "10.0a"
+  use_precompiled: true
+  max_jobs: 0.8
+
+server:
+  tp: 1
+  max_model_len: 4096
+  port: 8000
+  model: RedHatAI/DeepSeek-V2-Lite-FP8
+
+branches:
+  main:
+    runs:
+      - label: main_serve_bench
+        command: >
+          vllm bench serve
+          --model RedHatAI/DeepSeek-V2-Lite-FP8
+          --port 8000
+          --num-prompts 100
+          --random-input-len 128
+          --random-output-len 128
+          --ignore-eos
